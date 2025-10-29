@@ -8,46 +8,37 @@
     <link rel="stylesheet" href="./src/dashboard.css" />
   </head>
   <body>
-    <header>
-      <h1>Dashboard – Markdown Files</h1>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo-dot"></span>
+        <span class="brand-name">Markdown Previewer</span>
+      </div>
+      <div class="top-actions">
+        <input
+          id="search"
+          class="search"
+          placeholder="Rechercher un fichier..."
+        />
+      </div>
     </header>
 
-    <main class="dash">
-      <aside class="files">
-        <div class="toolbar">
-          <button id="btn-new">Nouveau fichier</button>
-          <input id="search" placeholder="Rechercher..." />
-        </div>
-        <ul id="file-list"></ul>
-      </aside>
-
-      <section class="work">
-        <div class="work-header">
-          <input id="file-title" placeholder="Titre du fichier" />
-          <div class="actions">
-            <button id="btn-save">Enregistrer</button>
-            <button id="btn-delete" class="danger">Supprimer</button>
-          </div>
-        </div>
-
-        <div class="split">
-          <section class="editor">
-            <h2>Éditeur</h2>
-            <textarea
-              id="editor"
-              placeholder="# Écris ton Markdown ici..."
-            ></textarea>
-          </section>
-          <section class="preview">
-            <h2>Aperçu</h2>
-            <div id="preview"></div>
-          </section>
-        </div>
+    <main class="container">
+      <section class="grid" id="grid">
+        <!-- Tuile + (création) -->
+        <article
+          class="card new-card"
+          id="new-card"
+          role="button"
+          tabindex="0"
+          aria-label="Créer un fichier"
+        >
+          <div class="plus">+</div>
+          <div class="new-label">Nouveau fichier</div>
+        </article>
+        <!-- Les cartes fichiers seront injectées ici -->
       </section>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
     <script src="./src/dashboard.js"></script>
   </body>
 </html>

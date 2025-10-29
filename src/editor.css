@@ -1,0 +1,32 @@
+.title-input {
+  background: #0b0e14;
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 10px 12px;
+  border-radius: 10px;
+  min-width: 240px;
+  margin-right: 10px;
+}
+
+.topbar .brand.back {
+  text-decoration: none;
+  color: var(--fg);
+}
+
+.topbar button {
+  background: #1a2234;
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.topbar button:hover {
+  background: #1d2b45;
+}
+
+.topbar button.danger {
+  border-color: #5b1c1c;
+  background: #2a1212;
+}

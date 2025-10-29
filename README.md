@@ -1,38 +1,35 @@
 # Markdown Previewer
 
-Un visualiseur Markdown simple : à gauche un éditeur de texte, à droite l’aperçu rendu en temps réel.
+Application de prévisualisation Markdown avec dashboard et stockage MongoDB.
 
-## Fonctionnalités
+## Caractéristiques
+- Dashboard épuré affichant les fichiers en cartes.
+- Tuile “+” pour créer un fichier. La carte de prévisualisation apparaît immédiatement.
+- Clic sur une carte pour ouvrir l’éditeur plein écran.
+- Éditeur Markdown avec aperçu en temps réel (Marked + DOMPurify).
+- API REST (Express + Mongoose) et MongoDB Atlas.
 
-- Édition Markdown en direct
-- Rendu sécurisé (DOMPurify)
-- Support GFM (titres, listes, code, liens…)
-- Mise en page responsive (2 colonnes / 1 colonne)
-- Dashboard avec CRUD de fichiers stockés en MongoDB
-
-## Démarrage rapide
+## Démarrage
 
 ### Prérequis
-
 - Node.js 18+
-- Un cluster MongoDB (Atlas)
+- MongoDB Atlas (URI dans `server/.env`)
 
 ### Installation
-
 ```bash
-# Backend
 cd server
-cp .env.example .env     # Renseigne MONGODB_URI et PORT si nécessaire
+cp .env.example .env   # Renseigner MONGODB_URI
 npm install
 npm run dev
-# Le serveur écoute sur http://localhost:5174
+```
 
 ## Utilisation
 
-- Previewer standalone : ouvrir `http://localhost:5174/index.html`
-- Dashboard CRUD : ouvrir `http://localhost:5174/dashboard.html`
+- Ouvre `http://localhost:5174/` → redirection automatique vers le dashboard.
+- Clique sur la tuile “+” pour créer un fichier.
+- Clique sur une carte pour ouvrir l’éditeur : `/editor.html?id=<ID>`.
 
-Le backend Express expose l’API REST suivante :
+## API
 
 - `GET /api/files` : lister les fichiers
 - `GET /api/files/:id`: récupérer un fichier
@@ -42,17 +39,20 @@ Le backend Express expose l’API REST suivante :
 
 ## Structure
 
+```
 markdown-previewer/
-  index.html
   dashboard.html
+  editor.html
+  index.html                 # (previewer standalone, optionnel)
   src/
     style.css
-    main.js
     dashboard.css
     dashboard.js
+    editor.css
+    editor.js
   server/
     .env.example
-    .env              # non commité
+    .env                     # non commité
     package.json
     src/
       index.js
@@ -62,11 +62,12 @@ markdown-previewer/
   LICENSE
   README.md
   RELEASE_NOTES.md
+```
 
 ## Sécurité
 
-- Le HTML rendu côté client est nettoyé avec DOMPurify.
-- Ne commitez jamais vos secrets. Le fichier server/.env est ignoré par Git
+- Le rendu HTML est nettoyé via DOMPurify.
+- Ne commitez jamais vos secrets (server/.env ignoré).
 
 ## Licence
 MIT. Voir `LICENSE`.

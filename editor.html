@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Éditeur – Markdown</title>
+    <link rel="stylesheet" href="./src/style.css" />
+    <link rel="stylesheet" href="./src/editor.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand back" href="/" aria-label="Retour au dashboard"
+        >← Dashboard</a
+      >
+      <div class="top-actions">
+        <input
+          id="file-title"
+          class="title-input"
+          placeholder="Titre du fichier"
+        />
+        <button id="btn-save">Enregistrer</button>
+        <button id="btn-delete" class="danger">Supprimer</button>
+      </div>
+    </header>
+
+    <main class="split">
+      <section class="editor">
+        <h2>Éditeur</h2>
+        <textarea
+          id="editor"
+          placeholder="# Écris ton Markdown ici..."
+        ></textarea>
+      </section>
+      <section class="preview">
+        <h2>Aperçu</h2>
+        <div id="preview"></div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+    <script src="./src/editor.js"></script>
+  </body>
+</html>
