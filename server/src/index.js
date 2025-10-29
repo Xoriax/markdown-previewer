@@ -1,3 +1,4 @@
+// server/src/index.js
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
@@ -7,11 +8,9 @@ const File = require('./models/File');
 
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
-// MongoDB
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
   console.error('Missing MONGODB_URI in .env');
@@ -24,16 +23,19 @@ mongoose.connect(MONGODB_URI).then(() => {
   process.exit(1);
 });
 
-// API Routes
+// --- redirect root to dashboard ---
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'dashboard.html'));
+});
+
+// API
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-// List
-app.get('/api/files', async (req, res) => {
+app.get('/api/files', async (_req, res) => {
   const files = await File.find().sort({ updatedAt: -1 }).lean();
   res.json(files);
 });
 
-// Read one
 app.get('/api/files/:id', async (req, res) => {
   try {
     const f = await File.findById(req.params.id).lean();
@@ -44,7 +46,6 @@ app.get('/api/files/:id', async (req, res) => {
   }
 });
 
-// Create
 app.post('/api/files', async (req, res) => {
   const { title, content = '' } = req.body || {};
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
@@ -52,7 +53,6 @@ app.post('/api/files', async (req, res) => {
   res.status(201).json(created);
 });
 
-// Update
 app.put('/api/files/:id', async (req, res) => {
   const { title, content } = req.body || {};
   const payload = {};
@@ -72,7 +72,6 @@ app.put('/api/files/:id', async (req, res) => {
   }
 });
 
-// Delete
 app.delete('/api/files/:id', async (req, res) => {
   try {
     const del = await File.findByIdAndDelete(req.params.id).lean();
@@ -83,7 +82,7 @@ app.delete('/api/files/:id', async (req, res) => {
   }
 });
 
-// Static frontend (sert index.html & dashboard.html depuis la racine du repo)
+// Static (après la route '/')
 app.use('/', express.static(path.join(__dirname, '..', '..')));
 
 const PORT = process.env.PORT || 5174;
