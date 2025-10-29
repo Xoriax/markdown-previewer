@@ -5,6 +5,12 @@ Ajoute une nouvelle section à `RELEASE_NOTES.md` :
 ```md
 # Release Notes
 
+## v0.3.1 - 2025-10-29
+- Fix: rendu des cartes sur le dashboard (suppression propre puis ré-insertion, évite doublons/ordre instable)
+- Amélioration: création de fichier plus robuste (try/catch, léger délai, rechargement depuis le serveur)
+- Amélioration: rafraîchissement auto du dashboard au retour de focus de la fenêtre
+- Divers: bind clavier et attributs ARIA conservés pour l’accessibilité
+
 ## v0.3.0 - 2025-10-29
 - Redirection de la racine `/` vers le **dashboard**
 - Nouveau **dashboard épuré** en grille avec **tuile “+”** pour créer un fichier

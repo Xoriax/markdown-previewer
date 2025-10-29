@@ -51,11 +51,32 @@ function cardHTML(file) {
 function paint() {
   // enlève toutes les cartes sauf la tuile + (premier enfant)
   els.grid.querySelectorAll('.card:not(.new-card)').forEach(n => n.remove());
-  const frag = document.createElement('div');
-  frag.innerHTML = state.filtered.map(cardHTML).join('');
-  // insérer après la new-card
-  els.newCard.insertAdjacentElement('afterend', frag);
-  // binder
+  
+  // Créer les nouvelles cartes
+  const newCards = state.filtered.map(file => {
+    const cardElement = document.createElement('article');
+    cardElement.className = 'card';
+    cardElement.setAttribute('data-id', file._id);
+    cardElement.setAttribute('role', 'button');
+    cardElement.setAttribute('tabindex', '0');
+    cardElement.setAttribute('aria-label', `Ouvrir ${file.title}`);
+    cardElement.innerHTML = `
+      <div class="title">${file.title || 'Sans titre'}</div>
+      <div class="snippet">${mdToText(file.content || '') || 'Aucun contenu pour le moment.'}</div>
+      <div class="meta">
+        <span class="badge">Modifié: ${formatDate(file.updatedAt || file.createdAt)}</span>
+        <span class="cta">Ouvrir →</span>
+      </div>
+    `;
+    return cardElement;
+  });
+  
+  // Ajouter toutes les cartes après la new-card
+  newCards.forEach(card => {
+    els.newCard.insertAdjacentElement('afterend', card);
+  });
+  
+  // binder les événements
   els.grid.querySelectorAll('.card:not(.new-card)').forEach(card => {
     card.onclick = () => {
       const id = card.getAttribute('data-id');
@@ -93,21 +114,27 @@ function onSearch(e) {
 }
 
 async function createFile() {
-  // modèle de fichier initial
-  const payload = {
-    title: 'Nouveau fichier',
-    content: '# Nouveau document\n\nCommencez à écrire votre contenu Markdown.',
-  };
-  const created = await api('/api/files', { method: 'POST', body: JSON.stringify(payload) });
+  try {
+    // modèle de fichier initial
+    const payload = {
+      title: 'Nouveau fichier',
+      content: '# Nouveau document\n\nCommencez à écrire votre contenu Markdown.',
+    };
+    const created = await api('/api/files', { method: 'POST', body: JSON.stringify(payload) });
 
-  // ajouter visuellement une carte de prévisualisation à côté (immédiat)
-  state.files.unshift(created);
-  state.filtered.unshift(created);
-  paint();
+    // Attendre un court délai pour s'assurer que la base de données est mise à jour
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Recharger la liste complète depuis le serveur au lieu d'ajouter localement
+    await loadFiles();
 
-  // focus visuel et accès éditeur au clic utilisateur
-  // (si tu veux rediriger directement, décommente la ligne suivante)
-  // window.location.href = `/editor.html?id=${created._id}`;
+    // focus visuel et accès éditeur au clic utilisateur
+    // (si tu veux rediriger directement, décommente la ligne suivante)
+    // window.location.href = `/editor.html?id=${created._id}`;
+  } catch (error) {
+    console.error('Erreur lors de la création du fichier:', error);
+    alert('Impossible de créer le fichier. Veuillez réessayer.');
+  }
 }
 
 function bind() {
@@ -116,6 +143,11 @@ function bind() {
     if (e.key === 'Enter' || e.key === ' ') createFile();
   };
   els.search.addEventListener('input', onSearch);
+  
+  // Recharger les fichiers quand la fenêtre reprend le focus
+  window.addEventListener('focus', () => {
+    loadFiles().catch(console.error);
+  });
 }
 
 bind();
