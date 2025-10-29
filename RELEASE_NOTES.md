@@ -1,9 +1,11 @@
-# Release Notes (mise à jour)
-
-Ajoute une nouvelle section à `RELEASE_NOTES.md` :
-
-```md
 # Release Notes
+
+## v0.3.2 - 2025-10-29
+- Changement de licence : adoption d’une licence personnalisée **NoCommercial-NoDistribution**
+  - Usage privé/éducatif autorisé
+  - Interdiction de toute **distribution** et de tout **usage commercial**
+  - Ajout de l’identifiant SPDX `LicenseRef-NoCommercial-NoDistribution`
+  - Mise à jour du README et de la mention de licence dans `package.json`
 
 ## v0.3.1 - 2025-10-29
 - Fix: rendu des cartes sur le dashboard (suppression propre puis ré-insertion, évite doublons/ordre instable)

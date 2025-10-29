@@ -1,5 +1,8 @@
 # Markdown Previewer
 
+> Note : Ce dépôt est public à des fins de démonstration/portfolio.
+> La licence **interdit la redistribution** et **tout usage commercial**. Veuillez lire `LICENSE`.
+
 Application de prévisualisation Markdown avec dashboard et stockage MongoDB.
 
 ## Caractéristiques
@@ -70,5 +73,11 @@ markdown-previewer/
 - Ne commitez jamais vos secrets (server/.env ignoré).
 
 ## Licence
-MIT. Voir `LICENSE`.
-```
+Ce projet est sous une licence personnalisée : **NoCommercial-NoDistribution**.
+
+- Usage autorisé : **privé** et **éducatif** uniquement.
+- Interdit : **tout usage commercial**, **toute distribution** (y compris forks publics, publication sur registres/binaries, intégration dans un produit/service fourni à des tiers).
+- Conservez les mentions de droit d’auteur et le texte de la licence.
+
+Référez-vous au fichier `LICENSE` pour le texte complet.
+SPDX-Identifier: `LicenseRef-NoCommercial-NoDistribution`
