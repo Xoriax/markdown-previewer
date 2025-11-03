@@ -1,5 +1,11 @@
 # Release Notes
 
+## v0.3.3 - 2025-11-03
+- Dashboard: ajout d’un bouton “…” sur chaque carte permettant de renommer ou supprimer un fichier
+- Menu contextuel accessible (clavier, Échap, flèches), positionnement dynamique
+- Aucun changement d’API requis (réutilisation de PUT/DELETE existants)
+- Petit polissage UI sur les cartes et gestion des événements
+
 ## v0.3.2 - 2025-10-29
 - Changement de licence : adoption d’une licence personnalisée **NoCommercial-NoDistribution**
   - Usage privé/éducatif autorisé

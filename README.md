@@ -1,15 +1,14 @@
 # Markdown Previewer
 
-> Note : Ce dépôt est public à des fins de démonstration/portfolio.
-> La licence **interdit la redistribution** et **tout usage commercial**. Veuillez lire `LICENSE`.
-
 Application de prévisualisation Markdown avec dashboard et stockage MongoDB.
 
 ## Caractéristiques
-- Dashboard épuré affichant les fichiers en cartes.
+- Dashboard épuré en grille affichant les fichiers sous forme de cartes.
 - Tuile “+” pour créer un fichier. La carte de prévisualisation apparaît immédiatement.
+- Bouton “…” sur chaque carte pour renommer ou supprimer un fichier.
 - Clic sur une carte pour ouvrir l’éditeur plein écran.
 - Éditeur Markdown avec aperçu en temps réel (Marked + DOMPurify).
+- Rafraîchissement automatique du dashboard au retour de focus de la fenêtre.
 - API REST (Express + Mongoose) et MongoDB Atlas.
 
 ## Démarrage
@@ -27,26 +26,28 @@ npm run dev
 ```
 
 ## Utilisation
+- Ouvrir `http://localhost:5174/` → redirection automatique vers le dashboard.
+- Créer un fichier via la tuile “+”.
+- Renommer ou supprimer un fichier via le bouton “…” sur la carte.
+- Ouvrir l’éditeur via un clic sur la carte, route `/editor.html?id=<ID>`.
 
-- Ouvre `http://localhost:5174/` → redirection automatique vers le dashboard.
-- Clique sur la tuile “+” pour créer un fichier.
-- Clique sur une carte pour ouvrir l’éditeur : `/editor.html?id=<ID>`.
+## Raccourcis et interactions
+- Navigation clavier sur le dashboard et dans le menu “…” (flèches, Entrée, Échap).
+- Le dashboard se rafraîchit automatiquement quand la fenêtre retrouve le focus.
 
 ## API
-
-- `GET /api/files` : lister les fichiers
-- `GET /api/files/:id`: récupérer un fichier
-- `POST /api/files`: créer `{ title, content }`
-- `PUT /api/files/:id`: mettre à jour `{ title?, content? }`
-- `DELETE /api/files/:id`: supprimer
+- `GET /api/files` — lister
+- `GET /api/files/:id` — lire
+- `POST /api/files` — créer { title, content }
+- `PUT /api/files/:id` — mettre à jour { title?, content? }
+- `DELETE /api/files/:id` — supprimer
 
 ## Structure
-
 ```
 markdown-previewer/
   dashboard.html
   editor.html
-  index.html                 # (previewer standalone, optionnel)
+  index.html                 # previewer standalone, optionnel
   src/
     style.css
     dashboard.css
@@ -67,17 +68,8 @@ markdown-previewer/
   RELEASE_NOTES.md
 ```
 
-## Sécurité
-
-- Le rendu HTML est nettoyé via DOMPurify.
-- Ne commitez jamais vos secrets (server/.env ignoré).
-
 ## Licence
-Ce projet est sous une licence personnalisée : **NoCommercial-NoDistribution**.
 
-- Usage autorisé : **privé** et **éducatif** uniquement.
-- Interdit : **tout usage commercial**, **toute distribution** (y compris forks publics, publication sur registres/binaries, intégration dans un produit/service fourni à des tiers).
+Ce projet est sous une licence
+- Usage autorisé : privé et éducatif uniquement.
 - Conservez les mentions de droit d’auteur et le texte de la licence.
-
-Référez-vous au fichier `LICENSE` pour le texte complet.
-SPDX-Identifier: `LicenseRef-NoCommercial-NoDistribution`

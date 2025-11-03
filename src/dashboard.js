@@ -1,5 +1,3 @@
-// src/dashboard.js
-
 const API = (() => {
   try {
     return window.location.origin.includes('http') ? window.location.origin : 'http://localhost:5174';
@@ -10,11 +8,13 @@ const els = {
   grid: document.getElementById('grid'),
   newCard: document.getElementById('new-card'),
   search: document.getElementById('search'),
+  menu: document.getElementById('card-menu'),
 };
 
 let state = {
   files: [],
   filtered: [],
+  menu: { open: false, fileId: null, anchorRect: null }
 };
 
 function formatDate(ts) {
@@ -23,68 +23,66 @@ function formatDate(ts) {
 }
 
 function mdToText(md, max = 180) {
-  // Très simple "strip markdown"
-  const text = md
-    .replace(/```[\s\S]*?```/g, '')   // blocs code
-    .replace(/`[^`]*`/g, '')          // inline code
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, '') // images
-    .replace(/\[[^\]]*\]\([^)]+\)/g, '')  // liens
-    .replace(/[#>*_~\-]+/g, ' ')          // syntaxe de base
+  const text = (md || '')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`]*`/g, '')
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
+    .replace(/\[[^\]]*\]\([^)]+\)/g, '')
+    .replace(/[#>*_~\-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > max ? text.slice(0, max - 1) + '…' : text;
 }
 
-function cardHTML(file) {
-  return `
-    <article class="card" data-id="${file._id}" role="button" tabindex="0" aria-label="Ouvrir ${file.title}">
-      <div class="title">${file.title || 'Sans titre'}</div>
-      <div class="snippet">${mdToText(file.content || '') || 'Aucun contenu pour le moment.'}</div>
-      <div class="meta">
-        <span class="badge">Modifié: ${formatDate(file.updatedAt || file.createdAt)}</span>
-        <span class="cta">Ouvrir →</span>
-      </div>
-    </article>
+function cardElement(file) {
+  const el = document.createElement('article');
+  el.className = 'card';
+  el.setAttribute('data-id', file._id);
+  el.setAttribute('role', 'button');
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('aria-label', `Ouvrir ${file.title}`);
+
+  el.innerHTML = `
+    <button class="kebab" type="button" aria-haspopup="menu" aria-label="Options">
+      &hellip;
+    </button>
+    <div class="title">${file.title || 'Sans titre'}</div>
+    <div class="snippet">${mdToText(file.content) || 'Aucun contenu pour le moment.'}</div>
+    <div class="meta">
+      <span class="badge">Modifié: ${formatDate(file.updatedAt || file.createdAt)}</span>
+      <span class="cta">Ouvrir →</span>
+    </div>
   `;
+
+  el.addEventListener('click', (e) => {
+    if (e.target.closest('.kebab')) return;
+    const id = el.getAttribute('data-id');
+    window.location.href = `/editor.html?id=${id}`;
+  });
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const id = el.getAttribute('data-id');
+      window.location.href = `/editor.html?id=${id}`;
+    }
+  });
+
+  const kebab = el.querySelector('.kebab');
+  kebab.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const rect = kebab.getBoundingClientRect();
+    openMenu(file._id, rect);
+  });
+
+  return el;
 }
 
 function paint() {
-  // enlève toutes les cartes sauf la tuile + (premier enfant)
   els.grid.querySelectorAll('.card:not(.new-card)').forEach(n => n.remove());
-  
-  // Créer les nouvelles cartes
-  const newCards = state.filtered.map(file => {
-    const cardElement = document.createElement('article');
-    cardElement.className = 'card';
-    cardElement.setAttribute('data-id', file._id);
-    cardElement.setAttribute('role', 'button');
-    cardElement.setAttribute('tabindex', '0');
-    cardElement.setAttribute('aria-label', `Ouvrir ${file.title}`);
-    cardElement.innerHTML = `
-      <div class="title">${file.title || 'Sans titre'}</div>
-      <div class="snippet">${mdToText(file.content || '') || 'Aucun contenu pour le moment.'}</div>
-      <div class="meta">
-        <span class="badge">Modifié: ${formatDate(file.updatedAt || file.createdAt)}</span>
-        <span class="cta">Ouvrir →</span>
-      </div>
-    `;
-    return cardElement;
-  });
-  
-  // Ajouter toutes les cartes après la new-card
-  newCards.forEach(card => {
-    els.newCard.insertAdjacentElement('afterend', card);
-  });
-  
-  // binder les événements
-  els.grid.querySelectorAll('.card:not(.new-card)').forEach(card => {
-    card.onclick = () => {
-      const id = card.getAttribute('data-id');
-      window.location.href = `/editor.html?id=${id}`;
-    };
-    card.onkeydown = (e) => {
-      if (e.key === 'Enter' || e.key === ' ') card.click();
-    };
+  let insertAfter = els.newCard;
+  state.filtered.forEach(file => {
+    const card = cardElement(file);
+    insertAfter.insertAdjacentElement('afterend', card);
+    insertAfter = card;
   });
 }
 
@@ -113,26 +111,85 @@ function onSearch(e) {
   paint();
 }
 
+function positionMenu(rect) {
+  const menu = els.menu;
+  const margin = 6;
+  const top = Math.min(
+    window.innerHeight - menu.offsetHeight - margin,
+    rect.bottom + window.scrollY + margin
+  );
+  const left = Math.min(
+    window.innerWidth - menu.offsetWidth - margin,
+    rect.right + window.scrollX - menu.offsetWidth
+  );
+  menu.style.top = `${top}px`;
+  menu.style.left = `${left}px`;
+}
+
+function openMenu(fileId, anchorRect) {
+  state.menu.open = true;
+  state.menu.fileId = fileId;
+  state.menu.anchorRect = anchorRect;
+
+  els.menu.classList.remove('hidden');
+  els.menu.setAttribute('aria-hidden', 'false');
+
+  requestAnimationFrame(() => {
+    positionMenu(anchorRect);
+
+    const first = els.menu.querySelector('.menu-item');
+    if (first) first.focus();
+  });
+}
+
+function closeMenu() {
+  if (!state.menu.open) return;
+  state.menu.open = false;
+  state.menu.fileId = null;
+  state.menu.anchorRect = null;
+  els.menu.classList.add('hidden');
+  els.menu.setAttribute('aria-hidden', 'true');
+}
+
+async function handleMenuAction(action) {
+  const id = state.menu.fileId;
+  if (!id) return;
+
+  if (action === 'rename') {
+    const current = state.files.find(f => f._id === id);
+    const title = prompt('Nouveau titre :', current?.title || 'Sans titre');
+    if (title == null) return;
+    const trimmed = title.trim();
+    if (!trimmed) return alert('Le titre ne peut pas être vide.');
+    await api(`/api/files/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ title: trimmed })
+    });
+    await loadFiles();
+    closeMenu();
+    return;
+  }
+
+  if (action === 'delete') {
+    if (!confirm('Supprimer ce fichier ?')) return;
+    await api(`/api/files/${id}`, { method: 'DELETE' });
+    await loadFiles();
+    closeMenu();
+    return;
+  }
+}
+
 async function createFile() {
   try {
-    // modèle de fichier initial
     const payload = {
       title: 'Nouveau fichier',
       content: '# Nouveau document\n\nCommencez à écrire votre contenu Markdown.',
     };
-    const created = await api('/api/files', { method: 'POST', body: JSON.stringify(payload) });
-
-    // Attendre un court délai pour s'assurer que la base de données est mise à jour
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Recharger la liste complète depuis le serveur au lieu d'ajouter localement
+    await api('/api/files', { method: 'POST', body: JSON.stringify(payload) });
+    await new Promise(r => setTimeout(r, 80));
     await loadFiles();
-
-    // focus visuel et accès éditeur au clic utilisateur
-    // (si tu veux rediriger directement, décommente la ligne suivante)
-    // window.location.href = `/editor.html?id=${created._id}`;
-  } catch (error) {
-    console.error('Erreur lors de la création du fichier:', error);
+  } catch (err) {
+    console.error('Erreur lors de la création du fichier:', err);
     alert('Impossible de créer le fichier. Veuillez réessayer.');
   }
 }
@@ -143,8 +200,41 @@ function bind() {
     if (e.key === 'Enter' || e.key === ' ') createFile();
   };
   els.search.addEventListener('input', onSearch);
-  
-  // Recharger les fichiers quand la fenêtre reprend le focus
+
+  els.menu.addEventListener('click', (e) => {
+    const btn = e.target.closest('.menu-item');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    handleMenuAction(action).catch(console.error);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (state.menu.open && !e.target.closest('#card-menu') && !e.target.closest('.kebab')) {
+      closeMenu();
+    }
+  });
+
+  window.addEventListener('resize', closeMenu);
+  window.addEventListener('scroll', closeMenu, true);
+
+  els.menu.addEventListener('keydown', (e) => {
+    const items = Array.from(els.menu.querySelectorAll('.menu-item'));
+    const idx = items.indexOf(document.activeElement);
+    if (e.key === 'Escape') return closeMenu();
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items[(idx + 1) % items.length]?.focus();
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items[(idx - 1 + items.length) % items.length]?.focus();
+    }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      document.activeElement?.click();
+    }
+  });
+
   window.addEventListener('focus', () => {
     loadFiles().catch(console.error);
   });

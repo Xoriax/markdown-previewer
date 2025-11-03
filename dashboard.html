@@ -24,7 +24,6 @@
 
     <main class="container">
       <section class="grid" id="grid">
-        <!-- Tuile + (création) -->
         <article
           class="card new-card"
           id="new-card"
@@ -35,9 +34,27 @@
           <div class="plus">+</div>
           <div class="new-label">Nouveau fichier</div>
         </article>
-        <!-- Les cartes fichiers seront injectées ici -->
       </section>
     </main>
+
+    <div id="card-menu" class="menu hidden" role="menu" aria-hidden="true">
+      <button
+        type="button"
+        class="menu-item"
+        data-action="rename"
+        role="menuitem"
+      >
+        Renommer
+      </button>
+      <button
+        type="button"
+        class="menu-item danger"
+        data-action="delete"
+        role="menuitem"
+      >
+        Supprimer
+      </button>
+    </div>
 
     <script src="./src/dashboard.js"></script>
   </body>
